@@ -2,6 +2,12 @@
 #include <thread>
 #include <chrono>
 #include <cstdlib>
+#include <fstream>
+#include <string>
+#include <vector>
+#include <filesystem>
+
+
 
 
 void shop(int &money, int &rasa, int &hp, int &hydro){
@@ -142,8 +148,95 @@ void fight(int &hp, int &money, int &exp, int lvl, int &armor, int &mana, int &d
 }
 
 
+void createSaveFile(int hp, int armor, int dmg, int money, int hydro, int lvl, int exp, int hpmax, int hydromax, char rasa, char klasa, const std::string& fileName) {
+    std::string currentFilePath = __FILE__;
+    std::string currentDirectory = currentFilePath.substr(0, currentFilePath.find_last_of("/\\"));
+    std::string saveFilePath = currentDirectory + fileName + ".txt";
 
+    std::ofstream saveFile(saveFilePath);
 
+    if (saveFile.is_open()) {
+        saveFile << "Name: " << fileName << "\n";
+        saveFile << "HP: " << hp << "\n";
+        saveFile << "Armor: " << armor << "\n";
+        saveFile << "Damage: " << dmg << "\n";
+        saveFile << "Money: " << money << "\n";
+        saveFile << "Hydro: " << hydro << "\n";
+        saveFile << "Level: " << lvl << "\n";
+        saveFile << "Experience: " << exp << "\n";
+        saveFile << "Max HP: " << hpmax << "\n";
+        saveFile << "Max Hydro: " << hydromax << "\n";
+        saveFile << "Rasa: " << rasa << "\n";
+        saveFile << "Klasa: " << klasa << "\n";
+        saveFile.close();
+        std::cout << "Postać została zapisana w pliku " << fileName << ".txt" << std::endl;
+    } else {
+        std::cerr << "bład stworzenia pliku " << fileName << ".txt" << std::endl;
+    }
+}
+
+void displayFileListAndLoadData() {
+    std::vector<std::string> txtFiles;
+    int fileNum = 1;
+
+    for (const auto & entry : std::filesystem::directory_iterator(".")) {
+        if (entry.path().extension() == ".txt") {
+            std::cout << fileNum << ". " << entry.path().filename() << std::endl;
+            txtFiles.push_back(entry.path().filename().string());
+            fileNum++;
+        }
+    }
+
+    int chosenFileNum;
+    std::cout << "wybierz save do grania: ";
+    std::cin >> chosenFileNum;
+
+    if (chosenFileNum > 0 && chosenFileNum <= txtFiles.size()) {
+        std::string chosenFileName = txtFiles[chosenFileNum - 1];
+        std::ifstream chosenFile(chosenFileName);
+        if (chosenFile.is_open()) {
+            std::string line;
+            std::string name;
+            int hp, armor, damage, money, hydro, level, experience, maxHP, maxHydro;
+            std::string race, playerClass;
+
+            while (std::getline(chosenFile, line)) {
+                if (line.find("Name: ") != std::string::npos) {
+                    name = line.substr(6);
+                } else if (line.find("HP: ") != std::string::npos) {
+                    hp = std::stoi(line.substr(4));
+                } else if (line.find("Armor: ") != std::string::npos) {
+                    armor = std::stoi(line.substr(7));
+                } else if (line.find("Damage: ") != std::string::npos) {
+                    damage = std::stoi(line.substr(8));
+                } else if (line.find("Money: ") != std::string::npos) {
+                    money = std::stoi(line.substr(7));
+                } else if (line.find("Hydro: ") != std::string::npos) {
+                    hydro = std::stoi(line.substr(7));
+                } else if (line.find("Level: ") != std::string::npos) {
+                    level = std::stoi(line.substr(7));
+                } else if (line.find("Experience: ") != std::string::npos) {
+                    experience = std::stoi(line.substr(12));
+                } else if (line.find("Max HP: ") != std::string::npos) {
+                    maxHP = std::stoi(line.substr(8));
+                } else if (line.find("Max Hydro: ") != std::string::npos) {
+                    maxHydro = std::stoi(line.substr(11));
+                } else if (line.find("Rasa: ") != std::string::npos) {
+                    race = line.substr(6);
+                } else if (line.find("Klasa: ") != std::string::npos) {
+                    playerClass = line.substr(7);
+                }
+            }
+            chosenFile.close();
+
+            std::cout << "Wczytywanie postaci..." << std::endl;
+        } else {
+            std::cerr << "Error: brak możliwości otwarcia pliku" << std::endl;
+        }
+    } else {
+        std::cerr << "Error: zły numer pliku" << std::endl;
+    }
+}
 
 int main() {
                                                                                        // Zmienne statystyk gracza
@@ -246,19 +339,25 @@ int main() {
                     default:
                         break;
                 }
+
                 // Stworzenie save i rozpoczęcie gry
+                std::string saveName;
+                std::cout << "Podaj nazwę save: ";
+                std::cin >> saveName;
+                createSaveFile(hp, armor, dmg, money, hydro, lvl, exp, hpmax, hydromax, rasa, klasa, saveName);
+
                 break;
             case '2':
                 // Wczytanie zapisu gry
-                std::cout << "Wybierz zapis gry, który chcesz wczytać\n";
+                displayFileListAndLoadData();
                 // Tutaj pojawi się lista zapisów, TRZEBA ZROBIĆ
                 break;
-            case '3':
+           case '3':
                 // Ustawienia - W sumie chuj wie co tu dać
                 break;
-            case '99':
+           case '99':
                 return 0;
-            default:
+           default:
                 continue;
         }
         // Rozgrywka

@@ -1,0 +1,12 @@
+Name: banan
+HP: 110
+Armor: 5
+Damage: 6
+Money: 0
+Hydro: 30
+Level: 0
+Experience: 0
+Max HP: 110
+Max Hydro: 30
+Rasa: 1
+Klasa: 1
