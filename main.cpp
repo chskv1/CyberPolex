@@ -7,7 +7,12 @@
 #include <vector>
 #include <filesystem>
 
-
+void checkExpLevel(int& exp, int& level) {
+    if (exp >= 100) {
+        level++;
+        exp -= 100;
+    }
+}
 
 
 void shop(int &money, int &rasa, int &hp, int &hydro){
@@ -145,6 +150,7 @@ void fight(int &hp, int &money, int &exp, int lvl, int &armor, int &mana, int &d
     }
     money += dmgmob;
     exp += hpmob;
+    checkExpLevel(exp, lvl);
 }
 
 
@@ -350,7 +356,7 @@ int main() {
             case '2':
                 // Wczytanie zapisu gry
                 displayFileListAndLoadData();
-                // Tutaj pojawi się lista zapisów, TRZEBA ZROBIĆ
+
                 break;
            case '3':
                 // Ustawienia - W sumie chuj wie co tu dać
@@ -361,16 +367,16 @@ int main() {
                 continue;
         }
         // Rozgrywka
-        // Ekran ładowania ale coś sie pierdzieli
+        // Ekran ładowania ale już działą
         int i;
         for (i = 0; i < 15; i++) {
             std::cout << "=";
             std::this_thread::sleep_for(std::chrono::seconds(1));
         }
-
+        checkExpLevel(exp, lvl);
         std::cout << std::endl;
         std::cout << "____________________Statystyki________________________________\n";
-        std::cout << "Życie: " << hp << " Najpojenie: " << hydro << " Pieniądze: " << money << "\n Siła ataku: " << dmg
+        std::cout << "Życie: " << hp <<"/"<< hpmax << " Najpojenie: " << hydro <<"/"<< hydromax << " Pieniądze: " << money << "\n Siła ataku: " << dmg
                   << " Pancerz: " << armor << " Poziom: " << lvl << " Doświadczenie: " << exp << std::endl;
         std::cout << "1. przygoda\n";
         std::cout << "2. praca\n";
